@@ -29,7 +29,7 @@ tenn1980<-read_excel("data/tenn1980.xlsx")
 # # # # # # # # # # # # # #
 
 #model to evaluate changes in TMIN by Julian date every years since 1980
-TMIN_model <- glm(TMIN ~ julian_date * year , data=tenn1980)
+TMIN_model <- lm(TMIN ~ julian_date * year , data=tenn1980)
 
 summary(TMIN_model)
 
@@ -62,8 +62,6 @@ freeze_days <- tenn1980 %>%
   filter(month <5) %>%
   summarise(total_days=sum(TMIN < 0))
 
-mean(freeze_days$total_days)
-
 mod_neg2 <- lm(total_days~year, data=freeze_days)
 summary(mod_neg2)
 
@@ -82,32 +80,34 @@ absolute_TMIN <- lm(temp~year, data=yearly_TMIN)
 summary(absolute_TMIN)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
-## Mean low temps for February, March and April ----
+## Mean low temps grouped and then for February, March and April ----
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+#broad model for January 1 - April 30
+overall_model <- lm(TMIN ~ julian_date + year, data = tenn1980, na.action="na.fail")
+summary(overall_model)
+aov(overall_model)
 
 February_mean_tmin <- tenn1980 %>%
   group_by(julian_date, year) %>%
   filter(julian_date>31) %>%
-  filter(julian_date<60) %>%
-  dplyr::summarise(temp=mean(TMIN))
+  filter(julian_date<60) 
 
-february_model <- glm(temp ~ julian_date + year, data = February_mean_tmin, na.action="na.fail")
+february_model <- lm(TMIN ~ julian_date + year, data = February_mean_tmin, na.action="na.fail")
 summary(february_model)
 
 March_mean_tmin <- tenn1980 %>%
   group_by(julian_date, year) %>%
   filter(julian_date>59) %>%
-  filter(julian_date<91) %>%
-  summarise(temp=mean(TMIN))
+  filter(julian_date<91)
 
-march_model <- glm(temp ~ julian_date + year, data = March_mean_tmin, na.action="na.fail")
+march_model <- lm(TMIN ~ julian_date + year, data = March_mean_tmin, na.action="na.fail")
 summary(march_model)
 
 April_mean_tmin <- tenn1980 %>%
    group_by(julian_date, year) %>%
   filter(julian_date>90) %>%
-  filter(julian_date<121) %>%
-  summarise(temp=mean(TMIN))
+  filter(julian_date<121) 
 
-april_model <- glm(temp ~ julian_date + year, data = April_mean_tmin, na.action="na.fail")
+april_model <- lm(TMIN ~ julian_date + year, data = April_mean_tmin, na.action="na.fail")
 summary(april_model)

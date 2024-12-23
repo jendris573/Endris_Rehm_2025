@@ -5,12 +5,13 @@ library(readxl)
 library(tidyverse)
 library(multcomp)
 library(MuMIn)
+library(nlme)
+library(emmeans)
 library(caTools)#moving window calculation
 
 tenn1980<-read_xlsx("data/tenn1980.xlsx")
 #import LT50 values
 LT50<-read_excel("data/LT50 master.xlsx")
-
 
 #Calculate the minimum temperature for each day and year on a rolling +/- 7 day average
 temp<-tenn1980%>%
@@ -41,24 +42,29 @@ test$smcurrent<-test$current_year_min-test$LT50
 #compare thermal safety margins calculated as LT50-minimum temperature since 1980
 test$smlong<-test$minMIN-test$LT50
 
+#create random effects
+test$individual_ID<-paste(test$Species,test$Individual,sep="")
 
 #model development and model selection of thermal safety margins against fixed effects Julian date, species, and sample year
-mod<-glm(smcurrent~julian_date+year+Species,data=test,na.action="na.fail")
+mod<-lme(smcurrent~julian_date+year*Species,random=~1|individual_ID,data=test,na.action="na.fail")
 summary(mod)
 dredge(mod)
 
 #best selected model
-mod<-glm(smcurrent~julian_date+year+Species,data=test,na.action="na.fail")
-summary(mod)
-summary(glht(mod, mcp(Species="Tukey")))
+mod<-lme(smcurrent~year+Species,random=~1|individual_ID,data=test,na.action="na.fail")
+summary(aov(mod))
+#pairwise comparison on species, while accounting for the year interaction
+emm.species<-pairs(emmeans(mod, pairwise~ Species))
+emm.species
 
 #model development and model selection of thermal safety margins against fixed effects Julian date, species and long term climate since 1980 
-mod<-glm(smlong~julian_date+year+Species,data=test,na.action="na.fail")
+mod<-lme(smlong~julian_date+year*Species,random=~1|individual_ID,data=test,na.action="na.fail")
 summary(mod)
 dredge(mod)
 
 #best selected model
-mod<-glm(smlong~julian_date+year+Species,data=test,na.action="na.fail")
-summary(mod)
-summary(glht(mod, mcp(Species="Tukey")))
-
+mod<-lme(smlong~julian_date+year+Species,random=~1|individual_ID,data=test,na.action="na.fail")
+summary(aov(mod))
+#pairwise comparison on species, while accounting for the year interaction
+emm.species<-pairs(emmeans(mod, pairwise~ Species))
+emm.species
