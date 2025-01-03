@@ -28,17 +28,18 @@ dredge(mod)
 #best model
 mod<-lme(LT50~phen+year+Species,random=~1|individual_ID,data=outputs,na.action="na.fail")
 summary(aov(mod))
-
+summary(mod)
+aov(mod)
 #comparing specific factor levels
-#pairwise comparison on species, while accounting for the year interaction
-emm.species<-pairs(emmeans(mod, pairwise~ Species|year))
-emm.species#we can see the L. tulipifera is different than f. grandifolia but only in 2022
-#in 2023 all species more or less converge onto the same date.
+EMM1<-emmeans(mod,~phen)
+pairs(EMM1)
+#pairwise comparison on species
+EMM2<-emmeans(mod,~Species)
+pairs(EMM2)
 
-#pairwise comparison on phenology, while accounting for the year interaction
-emm.species<-pairs(emmeans(mod, pairwise~ phen))
-emm.species#we can see the L. tulipifera is different than f. grandifolia but only in 2022
-#in 2023 all species more or less converge onto the same date.
+#pairwise comparison on year,
+EMM3<-emmeans(mod,~year)
+pairs(EMM3)
 
 
 

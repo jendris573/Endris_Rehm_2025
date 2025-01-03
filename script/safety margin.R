@@ -53,9 +53,12 @@ dredge(mod)
 #best selected model
 mod<-lme(smcurrent~year+Species,random=~1|individual_ID,data=test,na.action="na.fail")
 summary(aov(mod))
-#pairwise comparison on species, while accounting for the year interaction
-emm.species<-pairs(emmeans(mod, pairwise~ Species))
-emm.species
+##pairwise comparison on species - no year interaction
+EMM1<-emmeans(mod,~Species)
+pairs(EMM1)
+##pairwise comparison on year - no species interaction
+EMM2<-emmeans(mod,~year)
+pairs(EMM2)
 
 #model development and model selection of thermal safety margins against fixed effects Julian date, species and long term climate since 1980 
 mod<-lme(smlong~julian_date+year*Species,random=~1|individual_ID,data=test,na.action="na.fail")
@@ -65,6 +68,9 @@ dredge(mod)
 #best selected model
 mod<-lme(smlong~julian_date+year+Species,random=~1|individual_ID,data=test,na.action="na.fail")
 summary(aov(mod))
-#pairwise comparison on species, while accounting for the year interaction
-emm.species<-pairs(emmeans(mod, pairwise~ Species))
-emm.species
+##pairwise comparison on species - no year interaction
+EMM1<-emmeans(mod,~Species)
+pairs(EMM1)
+##pairwise comparison on year - no species interaction
+EMM2<-emmeans(mod,~year)
+pairs(EMM2)

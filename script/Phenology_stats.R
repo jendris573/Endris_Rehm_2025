@@ -37,6 +37,7 @@ dredge(mod)
 #best model
 mod<-lme(ph2~year*as.factor(species),random=~1|individual_ID,data=GDD,na.action="na.fail")
 summary(aov(mod))
+
 #pairwise comparison on species, while accounting for the year interaction
 emm.species<-pairs(emmeans(mod, pairwise~ species|year))
 emm.species#we can see the L. tulipifera is different than f. grandifolia but only in 2022

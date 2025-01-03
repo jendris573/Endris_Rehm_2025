@@ -111,3 +111,30 @@ April_mean_tmin <- tenn1980 %>%
 
 april_model <- lm(TMIN ~ julian_date + year, data = April_mean_tmin, na.action="na.fail")
 summary(april_model)
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # #
+## Test of changes to AGDD over time relative to last freeze date----
+# # # # # # # # # # # # # # # # # # # # # # # # # # #
+tenn_clim<-read_excel("data/climate_GDD.xlsx")
+#calculate last day below -2 for each year since 1980
+last_freeze <- tenn_clim%>%
+  filter(TMIN< 0)%>%
+  filter(julian_date<180)%>%
+  group_by(year)%>%
+  filter(row_number()==n())
+
+#plot GDDcumsum by last freeze date
+ggplot(data=last_freeze,aes(x=year,y=GDDcumsum))+
+  geom_point()+
+  ylab("Accumulated Growing Degree Days at last freeze date")+
+  xlab("Year")+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        legend.position = c(0.2, 0.8),legend.key=element_blank(),
+        text = element_text(size = 12))
+
+mod<-lm(GDDcumsum~year,data=last_freeze)
+summary(aov(mod))
+#calculate mean last freeze for TN since 1980
+mean(as.numeric(last_freeze$julian_date))
+
